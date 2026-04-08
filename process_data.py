@@ -44,7 +44,7 @@ for line in bookings_lines[1:]:
         fact_pilot.append([pilot_id, fname, lname])
     pilot_id = pilots[pilot_name]
 
-    dim_booking.append([i, passenger_id, arrival_airport, pilot_id, flight_status])
+    dim_booking.append([i, passenger_id, arrival_airport, pilot_id, flight_status, departure_date])
 
     i += 1
 
