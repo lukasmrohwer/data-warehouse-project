@@ -98,17 +98,21 @@ for iata_code, data in airports.items():
 
 #write data to csv files
 with open("fact_passenger.csv", "w", encoding="utf-8") as f:
+    f.write("PassengerID,FName,LName,Gender,Age,Nationality\n")
     for passenger in fact_passenger:
         f.write(",".join(passenger) + "\n")
 
 with open("fact_airport.csv", "w", encoding="utf-8") as f:
+    f.write("IATA,Name,Municipality,Region,Country,Continent,Latitude,Longitude,Elevation,Type\n")
     for airport in fact_airport:
         f.write(",".join(airport) + "\n")
 
 with open("fact_pilot.csv", "w", encoding="utf-8") as f:
+    f.write("PilotID,FName,LName\n")
     for pilot in fact_pilot:
         f.write(",".join(map(str, pilot)) + "\n")
 
 with open("dim_booking.csv", "w", encoding="utf-8") as f:
+    f.write("BookingID,PassengerID,IATA,PilotID,FlightStatus,DepartureDate\n")
     for booking in dim_booking:
         f.write(",".join(map(str, booking)) + "\n")
