@@ -13,7 +13,7 @@ dim_booking = []
 
 pilots = {}
 passengers = set()
-airports = set()
+airports = {}
 
 i = 0
 for line in bookings_lines[1:]:
@@ -27,15 +27,24 @@ for line in bookings_lines[1:]:
         print(f"Skipping line due to parsing error: {line.strip()}")
         break
 
+    if arrival_airport == "-" or arrival_airport == "0":
+        continue
+
     #add passenger data
     if passenger_id not in passengers:
         passengers.add(passenger_id)
         fact_passenger.append([passenger_id, fname, lname, gender, age, nationality])
     
     #add airport data
+    # if arrival_airport not in airports:
+    #     airports.add(arrival_airport)
+    #     fact_airport.append([arrival_airport, airport_name, continent, country_name])
     if arrival_airport not in airports:
-        airports.add(arrival_airport)
-        fact_airport.append([arrival_airport, airport_name, country_name, continent])
+        airports[arrival_airport] = {
+            "name": airport_name,
+            "continent": continent,
+            "country_name": country_name
+        }
 
     #add pilot data
     if pilot_name not in pilots:
@@ -47,9 +56,45 @@ for line in bookings_lines[1:]:
     pilot_id = pilots[pilot_name]
 
     #add booking data
+    departure_date = departure_date.replace("/", "-")
     dim_booking.append([i, passenger_id, arrival_airport, pilot_id, flight_status, departure_date])
 
     i += 1
+
+for line in airports_lines[1:]:
+    line = re.sub(r'"([^",]+)[^"]*"', r'\1', line)
+
+    # print(line)
+
+    try:
+        airport_id,ident,airport_type,name,latitude_deg,longitude_deg,elevation_ft,continent,iso_country,iso_region,municipality,scheduled_service,icao_code,iata_code,gps_code,local_code,home_link,wikipedia_link,keywords = line.strip().split(",")
+    except ValueError:
+        print(f"Skipping line due to parsing error: {line.strip()}")
+        continue
+
+    if iata_code in airports:
+        # print("true")
+        # break
+        airports[iata_code]["latitude_deg"] = latitude_deg
+        airports[iata_code]["longitude_deg"] = longitude_deg
+        airports[iata_code]["elevation_ft"] = elevation_ft
+        airports[iata_code]["airport_type"] = airport_type
+        airports[iata_code]["municipality"] = municipality
+        airports[iata_code]["iso_region"] = iso_region
+        continue
+
+    #fallback
+    for iata_code, data in airports.items():
+        if data["name"] == name:
+            airports[iata_code]["latitude_deg"] = latitude_deg
+            airports[iata_code]["longitude_deg"] = longitude_deg
+            airports[iata_code]["elevation_ft"] = elevation_ft
+            airports[iata_code]["airport_type"] = airport_type
+            airports[iata_code]["municipality"] = municipality
+            airports[iata_code]["iso_region"] = iso_region
+
+for iata_code, data in airports.items():
+    fact_airport.append([iata_code, data["name"], data.get("municipality", ""), data.get("iso_region", ""), data["country_name"], data["continent"], data.get("latitude_deg", ""), data.get("longitude_deg", ""), data.get("elevation_ft", ""), data.get("airport_type", "")])
 
 #write data to csv files
 with open("fact_passenger.csv", "w", encoding="utf-8") as f:
