@@ -33,9 +33,12 @@ for line in bookings_lines[1:]:
         pilot_id = pilots[pilot_name]
         fname, lname = pilot_name.split(" ")
         fact_pilot.append([pilot_id, fname, lname])
-
-
+    pilot_id = pilots[pilot_name]
 
     dim_booking.append([i, passenger_id, arrival_airport, pilot_id, flight_status])
 
     i += 1
+
+with open("fact_passenger.csv", "w") as f:
+    for passenger in fact_passenger:
+        f.write(",".join(passenger) + "\n")
