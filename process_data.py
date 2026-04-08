@@ -1,7 +1,9 @@
-with open("airports.csv", "r") as f:
+import re
+
+with open("airports.csv", "r", encoding="utf-8") as f:
     airports_lines = f.readlines()
 
-with open("bookings.csv", "r") as f:
+with open("bookings.csv", "r", encoding="utf-8") as f:
     bookings_lines = f.readlines()
 
 fact_passenger = []
@@ -15,9 +17,15 @@ airports = set()
 
 i = 0
 for line in bookings_lines[1:]:
+    line = re.sub(r'"([^",]+)[^"]*"', r'\1', line)
+
     #read booking
-    passenger_id, fname, lname, gender, age, nationality, airport_name, airport_country_code, country_name, airport_continent, continent, departure_date, arrival_airport, pilot_name, flight_status = line.strip().split(",")
-    
+    try:
+        passenger_id, fname, lname, gender, age, nationality, airport_name, airport_country_code, country_name, airport_continent, continent, departure_date, arrival_airport, pilot_name, flight_status = line.strip().split(",")
+    except ValueError:
+        print(f"Skipping line due to parsing error: {line.strip()}")
+        break
+
     #add passenger data
     if passenger_id not in passengers:
         passengers.add(passenger_id)
@@ -31,7 +39,8 @@ for line in bookings_lines[1:]:
     if pilot_name not in pilots:
         pilots[pilot_name] = len(pilots)
         pilot_id = pilots[pilot_name]
-        fname, lname = pilot_name.split(" ")
+        lname = pilot_name.split(" ")[-1]
+        fname = " ".join(pilot_name.split(" ")[:-1])
         fact_pilot.append([pilot_id, fname, lname])
     pilot_id = pilots[pilot_name]
 
@@ -39,6 +48,18 @@ for line in bookings_lines[1:]:
 
     i += 1
 
-with open("fact_passenger.csv", "w") as f:
+with open("fact_passenger.csv", "w", encoding="utf-8") as f:
     for passenger in fact_passenger:
         f.write(",".join(passenger) + "\n")
+
+with open("fact_airport.csv", "w", encoding="utf-8") as f:
+    for airport in fact_airport:
+        f.write(",".join(airport) + "\n")
+
+with open("fact_pilot.csv", "w", encoding="utf-8") as f:
+    for pilot in fact_pilot:
+        f.write(",".join(map(str, pilot)) + "\n")
+
+with open("dim_booking.csv", "w", encoding="utf-8") as f:
+    for booking in dim_booking:
+        f.write(",".join(map(str, booking)) + "\n")
