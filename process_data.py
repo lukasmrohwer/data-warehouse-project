@@ -62,19 +62,18 @@ for line in bookings_lines[1:]:
     i += 1
 
 for line in airports_lines[1:]:
+    #deal with commas in quotes
     line = re.sub(r'"([^",]+)[^"]*"', r'\1', line)
 
-    # print(line)
-
+    #extract data
     try:
         airport_id,ident,airport_type,name,latitude_deg,longitude_deg,elevation_ft,continent,iso_country,iso_region,municipality,scheduled_service,icao_code,iata_code,gps_code,local_code,home_link,wikipedia_link,keywords = line.strip().split(",")
     except ValueError:
         print(f"Skipping line due to parsing error: {line.strip()}")
         continue
 
+    #add additional data
     if iata_code in airports:
-        # print("true")
-        # break
         airports[iata_code]["latitude_deg"] = latitude_deg
         airports[iata_code]["longitude_deg"] = longitude_deg
         airports[iata_code]["elevation_ft"] = elevation_ft
@@ -83,7 +82,7 @@ for line in airports_lines[1:]:
         airports[iata_code]["iso_region"] = iso_region
         continue
 
-    #fallback
+    #fallback incase airport data does not include iata code
     for iata_code, data in airports.items():
         if data["name"] == name:
             airports[iata_code]["latitude_deg"] = latitude_deg
