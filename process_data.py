@@ -17,6 +17,7 @@ airports = set()
 
 i = 0
 for line in bookings_lines[1:]:
+    #deal with commas in quotes
     line = re.sub(r'"([^",]+)[^"]*"', r'\1', line)
 
     #read booking
@@ -36,6 +37,7 @@ for line in bookings_lines[1:]:
         airports.add(arrival_airport)
         fact_airport.append([arrival_airport, airport_name, country_name, continent])
 
+    #add pilot data
     if pilot_name not in pilots:
         pilots[pilot_name] = len(pilots)
         pilot_id = pilots[pilot_name]
@@ -44,10 +46,12 @@ for line in bookings_lines[1:]:
         fact_pilot.append([pilot_id, fname, lname])
     pilot_id = pilots[pilot_name]
 
+    #add booking data
     dim_booking.append([i, passenger_id, arrival_airport, pilot_id, flight_status, departure_date])
 
     i += 1
 
+#write data to csv files
 with open("fact_passenger.csv", "w", encoding="utf-8") as f:
     for passenger in fact_passenger:
         f.write(",".join(passenger) + "\n")
