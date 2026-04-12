@@ -11,7 +11,7 @@ Copy the code from the sql files and run them.
 
 Example SQL Query
 ```
-SELECT * FROM dim_booking
-JOIN fact_airport ON fact_airport.iata = dim_booking.iata
-WHERE fact_airport.iata = 'PER'
+SELECT * FROM fact_booking
+JOIN dim_airport ON dim_airport.iata = fact_booking.iata
+WHERE dim_airport.iata = 'PER'
 ```

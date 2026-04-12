@@ -1,4 +1,4 @@
-BookingID,Passenger ID,Arrival Airport,PilotID,Flight Status,Departure Date
+BookingID,PassengerID,IATA,PilotID,FlightStatus,DepartureDate
 0,ABVWIg,CXF,0,On Time,6/28/2022
 1,jkXXAX,YCO,1,On Time,12/26/2022
 2,CdUz2g,GNB,2,On Time,1/18/2022
