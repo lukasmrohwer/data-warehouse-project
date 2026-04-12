@@ -1,4 +1,4 @@
-CREATE TABLE dim_booking (
+CREATE TABLE fact_booking (
     BookingID INTEGER PRIMARY KEY,
     PassengerID VARCHAR(50) REFERENCES fact_passenger(PassengerID),
     IATA VARCHAR(10) REFERENCES fact_airport(IATA),
@@ -7,7 +7,7 @@ CREATE TABLE dim_booking (
     DepartureDate DATE
 );
 
-CREATE TABLE fact_airport (
+CREATE TABLE dim_airport (
     IATA VARCHAR(10) PRIMARY KEY,
     Name VARCHAR(255),
     Municipality VARCHAR(255),
@@ -20,7 +20,7 @@ CREATE TABLE fact_airport (
     Type VARCHAR(50)
 );
 
-CREATE TABLE fact_passenger (
+CREATE TABLE dim_passenger (
     PassengerID VARCHAR(50) PRIMARY KEY,
     FName VARCHAR(100),
     LName VARCHAR(100),
@@ -29,7 +29,7 @@ CREATE TABLE fact_passenger (
     Nationality VARCHAR(100)
 );
 
-CREATE TABLE fact_pilot (
+CREATE TABLE dim_pilot (
     PilotID INTEGER PRIMARY KEY,
     FName VARCHAR(100),
     LName VARCHAR(100)

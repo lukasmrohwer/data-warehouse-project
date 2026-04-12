@@ -6,10 +6,10 @@ with open("airports.csv", "r", encoding="utf-8") as f:
 with open("bookings.csv", "r", encoding="utf-8") as f:
     bookings_lines = f.readlines()
 
-fact_passenger = []
-fact_airport = []
-fact_pilot = []
-dim_booking = []
+dim_passenger = []
+dim_airport = []
+dim_pilot = []
+fact_booking = []
 
 pilots = {}
 passengers = set()
@@ -33,7 +33,7 @@ for line in bookings_lines[1:]:
     #add passenger data
     if passenger_id not in passengers:
         passengers.add(passenger_id)
-        fact_passenger.append([passenger_id, fname, lname, gender, age, nationality])
+        dim_passenger.append([passenger_id, fname, lname, gender, age, nationality])
     
     #add airport data
     # if arrival_airport not in airports:
@@ -52,12 +52,12 @@ for line in bookings_lines[1:]:
         pilot_id = pilots[pilot_name]
         lname = pilot_name.split(" ")[-1]
         fname = " ".join(pilot_name.split(" ")[:-1])
-        fact_pilot.append([pilot_id, fname, lname])
+        dim_pilot.append([pilot_id, fname, lname])
     pilot_id = pilots[pilot_name]
 
     #add booking data
     departure_date = departure_date.replace("/", "-")
-    dim_booking.append([i, passenger_id, arrival_airport, pilot_id, flight_status, departure_date])
+    fact_booking.append([i, passenger_id, arrival_airport, pilot_id, flight_status, departure_date])
 
     i += 1
 
@@ -93,25 +93,25 @@ for line in airports_lines[1:]:
             airports[iata_code]["iso_region"] = iso_region
 
 for iata_code, data in airports.items():
-    fact_airport.append([iata_code, data["name"], data.get("municipality", ""), data.get("iso_region", ""), data["country_name"], data["continent"], data.get("latitude_deg", ""), data.get("longitude_deg", ""), data.get("elevation_ft", ""), data.get("airport_type", "")])
+    dim_airport.append([iata_code, data["name"], data.get("municipality", ""), data.get("iso_region", ""), data["country_name"], data["continent"], data.get("latitude_deg", ""), data.get("longitude_deg", ""), data.get("elevation_ft", ""), data.get("airport_type", "")])
 
 #write data to csv files
-with open("fact_passenger.csv", "w", encoding="utf-8") as f:
-    f.write("PassengerID,FName,LName,Gender,Age,Nationality\n")
-    for passenger in fact_passenger:
+with open("dim_passenger.csv", "w", encoding="utf-8") as f:
+    f.write("PassengerID,FName,LName,Gender,Age,Nationality\n"   )
+    for passenger in dim_passenger:
         f.write(",".join(passenger) + "\n")
 
-with open("fact_airport.csv", "w", encoding="utf-8") as f:
+with open("dim_airport.csv", "w", encoding="utf-8") as f:
     f.write("IATA,Name,Municipality,Region,Country,Continent,Latitude,Longitude,Elevation,Type\n")
-    for airport in fact_airport:
+    for airport in dim_airport:
         f.write(",".join(airport) + "\n")
 
-with open("fact_pilot.csv", "w", encoding="utf-8") as f:
+with open("dim_pilot.csv", "w", encoding="utf-8") as f:
     f.write("PilotID,FName,LName\n")
-    for pilot in fact_pilot:
+    for pilot in dim_pilot:
         f.write(",".join(map(str, pilot)) + "\n")
 
-with open("dim_booking.csv", "w", encoding="utf-8") as f:
+with open("fact_booking.csv", "w", encoding="utf-8") as f:
     f.write("BookingID,PassengerID,IATA,PilotID,FlightStatus,DepartureDate\n")
-    for booking in dim_booking:
+    for booking in fact_booking:
         f.write(",".join(map(str, booking)) + "\n")
