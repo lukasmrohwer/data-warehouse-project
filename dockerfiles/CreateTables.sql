@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS fact_booking CASCADE;
+DROP TABLE IF EXISTS dim_flight_status CASCADE;
 DROP TABLE IF EXISTS dim_airport CASCADE;
 DROP TABLE IF EXISTS dim_country CASCADE;
 DROP TABLE IF EXISTS dim_passenger CASCADE;
@@ -11,7 +12,6 @@ CREATE TABLE dim_country (
     country_name VARCHAR(100) PRIMARY KEY,
     avg_precipitation_mm NUMERIC,
     co2_emissions_pc NUMERIC,
-    gdp_usd NUMERIC,
     gdp_per_capita_usd NUMERIC,
     total_population BIGINT
 );
@@ -45,6 +45,11 @@ CREATE TABLE dim_pilot (
     LName VARCHAR(100)
 );
 
+CREATE TABLE dim_flight_status (
+    FlightStatusID INTEGER PRIMARY KEY,
+    flight_status VARCHAR(50)
+);
+
 -- Create Fact Table Last
 
 CREATE TABLE fact_booking (
@@ -52,7 +57,7 @@ CREATE TABLE fact_booking (
     PassengerID VARCHAR(50) REFERENCES dim_passenger(PassengerID),
     IATA VARCHAR(10) REFERENCES dim_airport(IATA),
     PilotID INTEGER REFERENCES dim_pilot(PilotID),
-    FlightStatus VARCHAR(50),
+    FlightStatusID INTEGER REFERENCES dim_flight_status(FlightStatusID),
     DepartureDate DATE
 );
 
@@ -79,7 +84,12 @@ COPY dim_pilot
 FROM '/tmp/data-warehouse-project/dim_pilot.csv' 
 DELIMITER ',' CSV HEADER;
 
--- 5. Load Bookings
+-- 5. Load Flight Status
+COPY dim_flight_status 
+FROM '/tmp/data-warehouse-project/dim_flight_status.csv' 
+DELIMITER ',' CSV HEADER;
+
+-- 6. Load Bookings
 SET datestyle = 'SQL, MDY';
 COPY fact_booking 
 FROM '/tmp/data-warehouse-project/fact_booking.csv' 

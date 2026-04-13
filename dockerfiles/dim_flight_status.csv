@@ -1,0 +1,4 @@
+FlightStatusID,Flight Status
+0,On Time
+1,Delayed
+2,Cancelled
