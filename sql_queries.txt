@@ -1,0 +1,97 @@
+Query results and their visualisation
+Present the findings from your business queries using appropriate charts, graphs, and other visualisations. Ensure the insights are clearly communicated and easily understandable to stakeholders.
+
+1. Find out if there’s a relationship between GDP_per_Capita and the delay and cancellation rate of flights in 2022.
+
+SQL: 
+SELECT 
+    dc.gdp_per_capita_usd,
+    COUNT(*) AS total_flights,
+    SUM(CASE WHEN dfs.flight_status = 'Delayed' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS delay_rate,
+    SUM(CASE WHEN dfs.flight_status = 'Cancelled' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS cancellation_rate
+FROM fact_booking fb
+JOIN dim_airport da ON fb.iata = da.iata
+JOIN dim_country dc ON da.country = dc.country_name
+JOIN dim_flight_status dfs ON fb.flightstatusid = dfs.flightstatusid
+WHERE EXTRACT(YEAR FROM fb.departuredate::date) = 2022
+GROUP BY dc.gdp_per_capita_usd
+ORDER BY dc.gdp_per_capita_usd;
+
+2. Find out if pilot performance (in terms of on time rate) is affected by different countries, airport types, and weather conditions?
+
+SQL:
+SELECT 
+    dp.pilotid,
+    da.country,
+    da.type AS airport_type,
+    dc.avg_precipitation_mm,
+    COUNT(*) AS total_flights,
+    SUM(CASE WHEN dfs.flight_status = 'On Time' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS on_time_rate
+FROM fact_booking fb
+JOIN dim_pilot dp ON fb.pilotid = dp.pilotid
+JOIN dim_airport da ON fb.iata = da.iata
+JOIN dim_country dc ON da.country = dc.country_name
+JOIN dim_flight_status dfs ON fb.flightstatusid = dfs.flightstatusid
+GROUP BY dp.pilotid, da.country, da.type, dc.avg_precipitation_mm
+ORDER BY on_time_rate DESC;
+
+3. Find out how flight delays vary over different months and seasons across different continents.
+
+SQL: 
+SELECT 
+    da.continent,
+    EXTRACT(MONTH FROM fb.departuredate::date) AS month,
+    CASE 
+        WHEN EXTRACT(MONTH FROM fb.departuredate::date) IN (12,1,2) THEN 'Summer'
+        WHEN EXTRACT(MONTH FROM fb.departuredate::date) IN (3,4,5) THEN 'Autumn'
+        WHEN EXTRACT(MONTH FROM fb.departuredate::date) IN (6,7,8) THEN 'Winter'
+        ELSE 'Spring'
+    END AS season,
+    COUNT(*) AS total_flights,
+    SUM(CASE WHEN dfs.flight_status = 'Delayed' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS delay_rate
+FROM fact_booking fb
+JOIN dim_airport da ON fb.iata = da.iata
+JOIN dim_flight_status dfs ON fb.flightstatusid = dfs.flightstatusid
+GROUP BY da.continent, month, season
+ORDER BY da.continent, month;
+
+4. Find out if specific airports, regions and countries are more significantly prone to flight delays and cancellations than others. 
+
+SQL: 
+SELECT 
+    da.name AS airport_name,
+    da.region,
+    da.country,
+    COUNT(*) AS total_flights,
+    SUM(CASE WHEN dfs.flight_status = 'Delayed' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS delay_rate,
+    SUM(CASE WHEN dfs.flight_status = 'Cancelled' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS cancellation_rate
+FROM fact_booking fb
+JOIN dim_airport da ON fb.iata = da.iata
+JOIN dim_flight_status dfs ON fb.flightstatusid = dfs.flightstatusid
+GROUP BY da.name, da.region, da.country
+HAVING COUNT(*) > 20
+ORDER BY delay_rate DESC;
+
+5. Find out if countries with larger populations tend to lead to an increase in flight delays or not.
+
+SQL: 
+SELECT 
+    dc.total_population,
+    COUNT(*) AS total_flights,
+    SUM(CASE WHEN dfs.flight_status = 'Delayed' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS delay_rate
+FROM fact_booking fb
+JOIN dim_airport da ON fb.iata = da.iata
+JOIN dim_country dc ON da.country = dc.country_name
+JOIN dim_flight_status dfs ON fb.flightstatusid = dfs.flightstatusid
+GROUP BY dc.total_population
+ORDER BY dc.total_population;
+
+Association rules mining
+Make sure you complete the relevant lab before attempting this task. The lab content may help you complete this task. 
+You are expected to select a subset (or all) of the attributes to mine interesting patterns. To rank the interestingness of the extracted rules, use support, confidence, and lift.
+In the submitted PDF, you need to:
+Explain and discuss which association rules mining algorithms were used with references.
+Explain the top k rules (where k ≥ 1) that have "Flight Status" on the right-hand side only, ranked by lift and confidence.
+Explain the meaning of these k rules in plain English.
+Share insights derived from the mining results. If no meaningful rules are discovered, explore potential reasons for this outcome.
+Based on the rules, provide and explain at least THREE (3) recommendations to the government on civil aviation industry development。
