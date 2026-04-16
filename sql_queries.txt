@@ -17,23 +17,24 @@ WHERE EXTRACT(YEAR FROM fb.departuredate::date) = 2022
 GROUP BY dc.gdp_per_capita_usd
 ORDER BY dc.gdp_per_capita_usd;
 
-2. Find out if pilot performance (in terms of on time rate) is affected by different countries, airport types, and weather conditions?
+2. Analyze passenger demographics across different continents
+Business Context: Understanding who is flying to or from specific regions helps airlines and airport operators tailor their services. For example, if a specific continent has a significantly older average passenger age, airports might need to ensure better accessibility services, while retail and duty-free shops can adjust their marketing and product offerings based on the age profiles of the travelers.
 
 SQL:
 SELECT 
-    dp.pilotid,
     da.country,
-    da.type AS airport_type,
-    dc.avg_precipitation_mm,
-    COUNT(*) AS total_flights,
-    SUM(CASE WHEN dfs.flight_status = 'On Time' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS on_time_rate
+    COUNT(fb.bookingid) AS total_passengers,
+    ROUND(AVG(dp.age), 1) AS average_passenger_age,
+    SUM(CASE WHEN dp.gender = 'Male' THEN 1 ELSE 0 END) AS male_passengers,
+    SUM(CASE WHEN dp.gender = 'Female' THEN 1 ELSE 0 END) AS female_passengers,
+    ROUND(
+        SUM(CASE WHEN dp.gender = 'Female' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(fb.bookingid), 0), 
+    2) AS female_ratio_pct
 FROM fact_booking fb
-JOIN dim_pilot dp ON fb.pilotid = dp.pilotid
 JOIN dim_airport da ON fb.iata = da.iata
-JOIN dim_country dc ON da.country = dc.country_name
-JOIN dim_flight_status dfs ON fb.flightstatusid = dfs.flightstatusid
-GROUP BY dp.pilotid, da.country, da.type, dc.avg_precipitation_mm
-ORDER BY on_time_rate DESC;
+JOIN dim_passenger dp ON fb.passengerid = dp.passengerid
+GROUP BY da.country
+ORDER BY total_passengers DESC;
 
 3. Find out how flight delays vary over different months and seasons across different continents.
 
