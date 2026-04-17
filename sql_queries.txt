@@ -15,6 +15,7 @@ JOIN dim_country dc ON da.country = dc.country_name
 JOIN dim_flight_status dfs ON fb.flightstatusid = dfs.flightstatusid
 WHERE EXTRACT(YEAR FROM fb.departuredate::date) = 2022
 GROUP BY dc.gdp_per_capita_usd
+HAVING COUNT(*) >= 20
 ORDER BY dc.gdp_per_capita_usd;
 
 2. Analyze passenger demographics across different continents
@@ -85,6 +86,7 @@ JOIN dim_airport da ON fb.iata = da.iata
 JOIN dim_country dc ON da.country = dc.country_name
 JOIN dim_flight_status dfs ON fb.flightstatusid = dfs.flightstatusid
 GROUP BY dc.total_population
+HAVING COUNT(*) >= 20
 ORDER BY dc.total_population;
 
 Association rules mining
